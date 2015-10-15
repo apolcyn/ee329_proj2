@@ -2,86 +2,85 @@
 
 #define SCALE 1
 #define VOLT_STEP (150 / SCALE)
-#define NUM_SAMPLES 72
+#define NUM_SAMPLES 45
+#define HIGH_SQUARE 4096
+#define LOW_SQUARE 100
+#define VOLT_STEP ((HIGH_SQUARE - LOW_SQUARE) / NUM_SAMPLES)
 
+#define SAWTOOTH 0
+#define SQUARE 1
+#define SINE 2
+
+#define LOW_CCRO_COUNT 444
 
 void Drive_DAC(unsigned int level);
-volatile unsigned int TempDAC_Value = VOLT_STEP;
+
+void draw_sine_wave(void);
+void draw_square_wave(void);
+void draw_sawtooth_wave(void);
+
+volatile unsigned int TempDAC_Value = 0;
+
 int sine_index = 0;
+
+long glob_counter = 0;
+
+int sawtooth_counter = 0;
+int square_counter = 0;
+
+int square_clock_counts = NUM_SAMPLES/2;
+int sawtooth_clock_counts = NUM_SAMPLES;
+
+int wave_state = SAWTOOTH;
+
+void (*draw_wave)(void) = draw_sine_wave;
 
 const int sine_map[] = {
 		2000,
-		2174,
-		2347,
-		2517,
-		2684,
-		2845,
-		3000,
-		3147,
+		2278,
+		2551,
+		2813,
+		3059,
 		3285,
-		3414,
-		3532,
-		3638,
-		3732,
-		3812,
-		3879,
-		3931,
+		3486,
+		3658,
+		3797,
+		3902,
 		3969,
-		3992,
-		4000,
-		3992,
-		3969,
-		3931,
-		3879,
-		3812,
+		3998,
+		3989,
+		3940,
+		3854,
 		3732,
-		3638,
-		3532,
-		3414,
-		3285,
-		3147,
-		3000,
-		2845,
+		3576,
+		3389,
+		3175,
+		2938,
 		2684,
-		2517,
-		2347,
-		2174,
-		2000,
-		1825,
-		1652,
-		1482,
+		2415,
+		2139,
+		1860,
+		1584,
 		1315,
-		1154,
-		1000,
-		852,
-		714,
-		585,
-		467,
-		361,
+		1061,
+		824,
+		610,
+		423,
 		267,
-		187,
-		120,
-		68,
+		145,
+		59,
+		10,
+		1,
 		30,
-		7,
-		0,
-		7,
-		30,
-		68,
-		120,
-		187,
-		267,
-		361,
-		467,
-		585,
+		97,
+		202,
+		341,
+		513,
 		714,
-		852,
-		1000,
-		1154,
-		1315,
-		1482,
-		1652,
-		1825,
+		940,
+		1186,
+		1448,
+		1721,
 };
 
 int main(void)
@@ -139,7 +138,7 @@ int main(void)
   //_enable_interrupts();
 
   TACTL = TASSEL_2 + MC_1 + ID_3;
-  TACCR0 = 2000 / SCALE;
+  TACCR0 = LOW_CCRO_COUNT / SCALE;
   __enable_interrupt();
 
 } // end of main
@@ -181,23 +180,57 @@ __interrupt void USCIAB0TX_ISR(void)
 }
 */
 
+void draw_sine_wave() {
+   Drive_DAC(sine_map[sine_index++]);
+   sine_index %= NUM_SAMPLES;
+}
+
+void draw_sawtooth_wave() {
+   if(++sawtooth_counter >= sawtooth_clock_counts) {
+	  sawtooth_counter = 0;
+	  TempDAC_Value = LOW_SQUARE;
+   }
+   TempDAC_Value += VOLT_STEP;
+
+   Drive_DAC(TempDAC_Value);
+}
+
+void draw_square_wave() {
+	if(++square_counter >= square_clock_counts) {
+		square_counter = 0;
+	    if(TempDAC_Value == HIGH_SQUARE)
+		   TempDAC_Value = LOW_SQUARE;
+	    else
+		   TempDAC_Value = HIGH_SQUARE;
+
+        Drive_DAC(TempDAC_Value);
+	}
+}
+
 #pragma vector=TIMER0_A0_VECTOR
 __interrupt void something(void) {
-	/*if(++counter >= 10 * SCALE) {
-		go_up ^= 1;
-		counter = 0;
+	if(glob_counter++ >= NUM_SAMPLES * 100) {
+		switch(wave_state) {
+		case SAWTOOTH:
+			draw_wave = draw_sawtooth_wave;
+			wave_state = SINE;
+			break;
+		case SINE:
+			draw_wave = draw_sine_wave;
+			wave_state = SQUARE;
+			break;
+		case SQUARE:
+			draw_wave = draw_square_wave;
+			wave_state = SAWTOOTH;
+			break;
+		}
+		glob_counter = 0;
 	}
-	if(go_up)
-       TempDAC_Value += VOLT_STEP;
-	else
-	   TempDAC_Value -= VOLT_STEP;
-
-	Drive_DAC(TempDAC_Value);*/
-	P1DIR |= BIT0;
+	/*P1DIR |= BIT0;
 	P1OUT |= BIT0;
-	Drive_DAC(sine_map[sine_index++]);
-	sine_index %= NUM_SAMPLES;
 	P1OUT &= ~BIT0;
-	P1DIR &= ~BIT0;
+	P1DIR &= ~BIT0;*/
+	draw_wave();
+	//draw_sawtooth_wave();
 }
 
