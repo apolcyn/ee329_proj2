@@ -26,14 +26,14 @@ void draw_sine_wave(void);
 void draw_square_wave(void);
 void draw_sawtooth_wave(void);
 
+void display_status(char *wave_type, char *freq, char *duty_cycle);
+
 void initBtn1(void);
 void initBtn23(void);
 
 volatile unsigned int TempDAC_Value = 0;
 
 int sine_index = 0;
-
-long glob_counter = 0;
 
 int ccr0_state = HZ_100;
 
@@ -50,6 +50,24 @@ int wave_state = SAWTOOTH;
 int duty_10_counts = 1;
 
 void (*draw_wave)(void) = draw_sine_wave;
+
+char *wave_type_str = "Sine";
+char *freq_str = "100 Hz";
+char *duty_cycle_str = NULL;
+
+char *duty_cycle_map[] = {
+		"0%",
+		"10%",
+		"20%",
+		"30%",
+		"40%",
+		"50%",
+		"60%",
+		"70%",
+		"80%",
+		"90%",
+		"100",
+};
 
 const int sine_map[] = {
 		2000,
@@ -256,6 +274,7 @@ int main(void)
   //IE2 = UCB0TXIE;            // Enable USCI0 TX interrupt
   //IE2 = UCB0RXIE;            // Enable USCI0 RX interrupt
   //_enable_interrupts();
+    display_status(wave_type_str, freq_str, duty_cycle_str);
 
     TACTL = TASSEL_2 + MC_1 + ID_3;
     TACCR0 = HZ_100;
@@ -363,19 +382,26 @@ __interrupt void Port_1(void)
 	   __delay_cycles(4000000);
 
 	   switch(wave_state) {
-	      		case SAWTOOTH:
-	      			draw_wave = draw_sawtooth_wave;
+	      		case SQUARE:
+	      			draw_wave = draw_sine_wave;
 	      			wave_state = SINE;
+	      			wave_type_str = "Sine";
+	      			duty_cycle_str = NULL;
+	      			break;
+	      		case SAWTOOTH:
+	      			draw_wave = draw_square_wave;
+	      			wave_state = SQUARE;
+	      			wave_type_str = "Square";
+	      			duty_cycle_str = duty_cycle_map[duty_10_counts];
 	      			break;
 	      		case SINE:
-	      			draw_wave = draw_sine_wave;
-	      			wave_state = SQUARE;
-	      			break;
-	      		case SQUARE:
-	      			draw_wave = draw_square_wave;
+	      			draw_wave = draw_sawtooth_wave;
 	      			wave_state = SAWTOOTH;
+	      			wave_type_str = "Sawtooth";
+	      			duty_cycle_str = NULL;
 	      			break;
 	   }
+	   display_status(wave_type_str, freq_str, duty_cycle_str);
 
 	   P1IFG &= ~BIT3;
    }
@@ -391,18 +417,23 @@ __interrupt void Port_2(void)
        switch (ccr0_state) {
        case HZ_100:
     	   ccr0_state = HZ_200;
+    	   freq_str = "200 Hz";
     	   break;
        case HZ_200:
     	   ccr0_state = HZ_300;
+    	   freq_str = "300 Hz";
     	   break;
        case HZ_300:
     	   ccr0_state = HZ_400;
+    	   freq_str = "400 Hz";
     	   break;
        case HZ_400:
     	   ccr0_state = HZ_500;
+    	   freq_str = "500 Hz";
     	   break;
        case HZ_500:
     	   ccr0_state = HZ_100;
+    	   freq_str = "100 Hz";
     	   break;
        }
 
@@ -414,12 +445,26 @@ __interrupt void Port_2(void)
 	   __delay_cycles(4000000);
 	   duty_10_counts = (duty_10_counts + 1) % 11;
 	   square_clock_counts = duty_10_counts * DUTY_10;
+	   duty_cycle_str = duty_cycle_map[duty_10_counts];
 	   square_counter = 0;
 	   write_cmd(BIT1);
 	   write_msg("asdvasdv");
 	   TempDAC_Value = HIGH_SQUARE;
 	   Drive_DAC(HIGH_SQUARE);
 	   P2IFG &=  0;                     // P1.3 IFG cleared
+   }
+   display_status(wave_type_str, freq_str, duty_cycle_str);
+}
+
+void display_status(char *wave_type, char *freq, char *duty_cycle) {
+   write_cmd(BIT1);
+   write_msg("Wave: ");
+   write_msg(wave_type);
+   write_cmd(BIT7 | 0x40);
+   write_msg(freq);
+   if(duty_cycle) {
+	   write_msg(" Duty: ");
+	   write_msg(duty_cycle);
    }
 }
 
