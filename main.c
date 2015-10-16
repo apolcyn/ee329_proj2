@@ -31,28 +31,27 @@ void display_status(char *wave_type, char *freq, char *duty_cycle);
 void initBtn1(void);
 void initBtn23(void);
 
-volatile unsigned int TempDAC_Value = 0;    //
+volatile unsigned int TempDAC_Value = 0;  // Value used to store the data to write to the DAC
 
 int sine_index = 0;        // index variable to find sample in the Sine wave lookup table
 
-// state variable to keep tract of frequency (which is controlled by CCR0).
-int ccr0_state = HZ_100;
+int ccr0_state = HZ_100;   // state variable to keep tract of frequency
+                           // (which is controlled by CCR0).
 
 int sawtooth_counter = 0;  // counter to keep track of where we're at in the sawtooth cycle.
 int square_counter = 0;    // counter to keep track of where we're at in the square cycle.
 
-// The number of timer interrupts that should be spent outputting a high voltage on a square wave.
-int square_clock_counts = DUTY_10;
+int square_clock_counts = DUTY_10; // The number of timer interrupts that should be spent
+                                   // outputting a high voltage on a square wave.
 
-// State variable to keep track of the currently selected wave type.
-int wave_state = SINE;
+int wave_state = SINE;    // State variable to keep track of the currently selected wave type.
 
 int duty_10_counts = 1;   // The number of 10% duty cycles that should be spent
                           // outputting a high voltage. (applicable only on a square wave).
 
-// A function pointer to the function that draws the next point of whatever the
-// currently selected wave is.
-void (*draw_wave)(void) = draw_sine_wave;
+void (*draw_wave)(void) = draw_sine_wave;  // A function pointer to the function that
+                                           // draws the next point of whatever the
+                                           // currently selected wave is.
 
 char *wave_type_str = "Sine";   // String to display on LCD to describe the current wave.
 char *freq_str = "100 Hz";      // String to display on LCD to describe the current frequency.
@@ -131,23 +130,21 @@ const int sine_map[] = {    // Lookup table of sine wave values.
 void write_cmd(char cmd) {
 	P1OUT &= 0xF8;
 
-	// upper nibble
-	P2OUT = (P2OUT & 0xF0) | (cmd >> 4);
+	P2OUT = (P2OUT & 0xF0) | (cmd >> 4);    // upper nibble
 	__delay_cycles(10);
-	P1OUT |= BIT0;      // raise enable
+	P1OUT |= BIT0;           // raise enable
 	__delay_cycles(10);
-	P1OUT &= ~BIT0;   // lower enable
+	P1OUT &= ~BIT0;          // lower enable
 
-	// lower nibble
 	__delay_cycles(10);
-	P2OUT = (P2OUT & 0xF0) | (0x0F & cmd);
+	P2OUT = (P2OUT & 0xF0) | (0x0F & cmd);  // lower nibble
 	__delay_cycles(10);
-	P1OUT |= BIT0;
+	P1OUT |= BIT0;           // raise enable
 	__delay_cycles(10);
-	P1OUT &= ~BIT0;
+	P1OUT &= ~BIT0;          // lower enable
 
-    __delay_cycles(100000);  // wait a long time, allow operation to complete
-    P1OUT &= 0xF8; // clear P1OUT,just keeping don't care lines low
+    __delay_cycles(100000);  // Wait a long time, allow operation to complete.
+    P1OUT &= 0xF8;           // Clear P1OUT,just keeping don't care lines low.
 }
 
 /* Writes a character to DDRAM in the LCD.
@@ -157,16 +154,14 @@ void write_data(char data) {
 	P1OUT &= 0xF8;               // Clear bits of P1 that LCD uses.
 	P1OUT |= BIT2;               // Set RS high to write to DDRAM
 
-	// upper nibble
-	P2OUT = (P2OUT & 0xF0) | (data >> 4);   // write upper nibble
+	P2OUT = (P2OUT & 0xF0) | (data >> 4);   // upper nibble
 	__delay_cycles(10);
 	P1OUT |= BIT0;           // raise enable
 	__delay_cycles(10);
 	P1OUT &= ~BIT0;          // lower enable
 
-	// lower nibble
 	__delay_cycles(10);
-	P2OUT = (P2OUT & 0xF0) | (0x0F & data);  // write lower nibble
+	P2OUT = (P2OUT & 0xF0) | (0x0F & data);  // lower nibble
 	__delay_cycles(10);
 	P1OUT |= BIT0;           // raise enable
 	__delay_cycles(10);
@@ -191,8 +186,7 @@ void lcd_setup() {
     P1OUT &= 0xF8;    // Only using low 3 bits of P1 for LCD. Start with these cleared.
 	P2OUT &= 0xF0;    // Only using lower nibble of P2, start with this cleared.
 
-    /* Write the first command to put it in nibble mode */
-	P2OUT |= BIT1;
+	P2OUT |= BIT1;                       // Write the first command to put it in nibble mode
 	__delay_cycles(10);
 	P1OUT |= BIT0;                       // raise enable
 	__delay_cycles(10);
@@ -217,34 +211,34 @@ void lcd_setup() {
 
 int main(void)
 {
-  WDTCTL = WDTPW + WDTHOLD;        // Stop watchdog timer
-  CCTL0 = CCIE;
+    WDTCTL = WDTPW + WDTHOLD;    // Stop watchdog timer
+    CCTL0 = CCIE;
 
-  // 16Mhz SMCLK
-  if (CALBC1_16MHZ==0xFF)		     // If calibration constant erased
-  {
-    while(1);                        // do not load, trap CPU!!
-  }
-  DCOCTL = 0;                        // Select lowest DCOx and MODx settings
-  BCSCTL1 = CALBC1_16MHZ;            // Set range
-  DCOCTL = CALDCO_16MHZ;             // Set DCO step + modulation
+    // 16Mhz SMCLK
+    if (CALBC1_16MHZ==0xFF)	   // If calibration constant erased
+    {
+        while(1);                  // do not load, trap CPU!!
+    }
+    DCOCTL = 0;                  // Select lowest DCOx and MODx settings
+    BCSCTL1 = CALBC1_16MHZ;      // Set range
+    DCOCTL = CALDCO_16MHZ;       // Set DCO step + modulation
 
-  P1OUT &= 0x00;               // Start out with everything cleared in P1.
+    P1OUT &= 0x00;               // Start out with everything cleared in P1.
 
-  P1DIR |= 0x07;               // Using lower 3 bits of P1 for control of LCD.
+    P1DIR |= 0x07;               // Using lower 3 bits of P1 for control of LCD.
                                // The rest of P1 is used for input.
 
-  P2DIR |= 0x0F;		       // Set P2DIR upper nibble for input.
+    P2DIR |= 0x0F;		       // Set P2DIR upper nibble for input.
                                // Using lower nibble to write data to the LCD, so its output.
 
-  lcd_setup();                 // Initialize the LCD screen.
-  write_cmd(BIT1);             // "Return home". put cursor at address 0 on LCD.
+    lcd_setup();                 // Initialize the LCD screen.
+    write_cmd(BIT1);             // "Return home". put cursor at address 0 on LCD.
 
-  // Displays the wave type, frequency, an duty cycle (if applicable) on the LCD.
-  display_status(wave_type_str, freq_str, duty_cycle_str);
+    // Displays the wave type, frequency, an duty cycle (if applicable) on the LCD.
+    display_status(wave_type_str, freq_str, duty_cycle_str);
 
-  initBtn1();
-  initBtn23();
+    initBtn1();                // Setup onboard button.
+    initBtn23();               // Setup external buttons attached to Port 2.
 
     // Init Ports
     P1DIR |= BIT4;             // Will use BIT4 to activate /CE on the DAC
@@ -252,26 +246,26 @@ int main(void)
     P1SEL  = BIT7 + BIT5; ;    // These two lines dedicate P1.7 and P1.5
     P1SEL2 = BIT7 + BIT5;      // for UCB0SIMO and UCB0CLK respectively
 
-  // SPI Setup
-  // clock inactive state = low,
-  // MSB first, 8-bit SPI master,
-  // 4-pin active Low STE, synchronous
-  //
-  // 4-bit mode disabled for now
-    UCB0CTL0 |= UCCKPL + UCMSB + UCMST + /* UCMODE_2 */ + UCSYNC;
+    // SPI Setup
+    // clock inactive state = low,
+    // MSB first, 8-bit SPI master,
+    // 4-pin active Low STE, synchronous
+    //
+    // 4-bit mode disabled for now
+    UCB0CTL0 |= UCCKPL + UCMSB + UCMST + UCSYNC;
 
     UCB0CTL1 |= UCSSEL_2;               // UCB0 will use SMCLK as the basis for
-                                      // the SPI bit clock
+                                        // the SPI bit clock
 
     // Sets SMCLK divider to 16,
     // hence making SPI SCLK equal
     // to SMCLK/16 = 1MHz
-    UCB0BR0 |= 0x10;             // (low divider byte)
-    UCB0BR1 |= 0x00;             // (high divider byte)
+    UCB0BR0 |= 0x10;                // (low divider byte)
+    UCB0BR1 |= 0x00;                // (high divider byte)
 
-    UCB0CTL1 &= ~UCSWRST;        // **Initialize USCI state machine**
-                               // SPI now Waiting for something to
-                               // be placed in TXBUF.
+    UCB0CTL1 &= ~UCSWRST;           // **Initialize USCI state machine**
+                                    // SPI now Waiting for something to
+                                    // be placed in TXBUF.
 
     TACTL = TASSEL_2 + MC_1 + ID_3; // Source timer A from SMCLK, put it in 'up' mode
                                     // , also divide timer A's clock input by 8.
@@ -282,17 +276,17 @@ int main(void)
 } // end of main
 
 void initBtn1() {
-   P1DIR |= BIT0 + BIT6;        // Set P1.0 and P1.6 to output
+   P1DIR |= BIT0 + BIT6;       // Set P1.0 and P1.6 to output
    P1REN |= BIT3;			   // Enable pullup resistor at P1.3
    P1OUT |= BIT3;
-   P1IE |= BIT3;				   // P1.3 interrupt enable (Button 1)
+   P1IE |= BIT3;			   // P1.3 interrupt enable (Button 1)
    P1IES |= BIT3;			   // P1.3 Hi/lo edge
    P1IFG &= ~BIT3;			   // P1.3 IFG cleared
 }
 
 void initBtn23() {
-   P2OUT |= BIT4 + BIT5;        //
-   P2REN |= BIT4 + BIT5;		   // Enable pullup resistor at P2.4, P2.5
+   P2OUT |= BIT4 + BIT5;        // Output high on P2.4 and P2.5
+   P2REN |= BIT4 + BIT5;		// Enable pullup resistor at P2.4, P2.5
    P2IE |= BIT4 + BIT5;         // P2.4, P2.5 interrupt enable (Buttons 2, 3)
    P2IES |= BIT4 + BIT5;        // P2.4, P2.5 Hi/lo edge
    P2IFG &= ~BIT4 + ~BIT5;      // P2.4, P2.5 cleared
@@ -381,32 +375,32 @@ __interrupt void Port_1(void)
 	   __delay_cycles(4000000);
 
 	   switch(wave_state) {
-	      		case SQUARE:
-	      			draw_wave = draw_sine_wave;
-	      			wave_state = SINE;
-	      			wave_type_str = "Sine    ";
-	      			duty_cycle_str = NULL;
-	      			break;
-	      		case SAWTOOTH:
-	      			draw_wave = draw_square_wave;
-	      			wave_state = SQUARE;
-	      			wave_type_str = "Square  ";
-	      			duty_cycle_str = duty_cycle_map[duty_10_counts];
-	      			square_counter = 0;
-	      			square_clock_counts = duty_10_counts * DUTY_10;
-	      			if(duty_10_counts == 0)
-	      				TempDAC_Value = LOW_SQUARE;
-	      			else
-	      				TempDAC_Value = HIGH_SQUARE;
+	   case SQUARE:
+	       draw_wave = draw_sine_wave;
+	       wave_state = SINE;
+	       wave_type_str = "Sine    ";
+	       duty_cycle_str = NULL;
+	       break;
+	   case SAWTOOTH:
+	       draw_wave = draw_square_wave;
+	       wave_state = SQUARE;
+	       wave_type_str = "Square  ";
+	       duty_cycle_str = duty_cycle_map[duty_10_counts];
+	       square_counter = 0;
+	       square_clock_counts = duty_10_counts * DUTY_10;
+	       if(duty_10_counts == 0)
+	          TempDAC_Value = LOW_SQUARE;
+	       else
+	      	  TempDAC_Value = HIGH_SQUARE;
 
-	      			Drive_DAC(TempDAC_Value);
-	      			break;
-	      		case SINE:
-	      			draw_wave = draw_sawtooth_wave;
-	      			wave_state = SAWTOOTH;
-	      			wave_type_str = "Sawtooth";
-	      			duty_cycle_str = NULL;
-	      			break;
+	       Drive_DAC(TempDAC_Value);
+	       break;
+	   case SINE:
+	       draw_wave = draw_sawtooth_wave;
+	       wave_state = SAWTOOTH;
+	       wave_type_str = "Sawtooth";
+	       duty_cycle_str = NULL;
+	       break;
 	   }
 	   display_status(wave_type_str, freq_str, duty_cycle_str);
 
@@ -473,16 +467,16 @@ __interrupt void Port_2(void)
  * on the LCD screen.
  */
 void display_status(char *wave_type, char *freq, char *duty_cycle) {
-   write_cmd(BIT1);
-   write_msg("Wave: ");
-   write_msg(wave_type);
-   write_cmd(BIT7 | 0x40);
-   write_msg(freq);
-   if(duty_cycle) {
-	   write_msg(" Duty:");
-	   write_msg(duty_cycle);
-   }
-   else
-	   write_msg("          ");
+    write_cmd(BIT1);
+    write_msg("Wave: ");
+    write_msg(wave_type);
+    write_cmd(BIT7 | 0x40);
+    write_msg(freq);
+    if(duty_cycle) {
+ 	    write_msg(" Duty:");
+	    write_msg(duty_cycle);
+    }
+    else
+        write_msg("          ");
 }
 
