@@ -1,4 +1,5 @@
 #include <msp430g2553.h>
+#include<stdio.h>
 
 #define SCALE 1
 #define NUM_SAMPLES 50
@@ -102,6 +103,90 @@ const int sine_map[] = {
 		1502,
 		1749,
 };
+
+void write_cmd(char cmd) {
+//	P2OUT = 0;
+	P1OUT &= ~BIT0;
+
+	// upper nibble
+	P2OUT = (P2OUT & 0xF0) | (cmd >> 4);
+	__delay_cycles(10);
+	P1OUT |= BIT0;      // raise enable
+	__delay_cycles(10);
+	P1OUT &= ~BIT0;   // lower enable
+
+	// lower nibble
+	__delay_cycles(10);
+	P2OUT = (P2OUT & 0xF0) | (0x0F & cmd);
+	__delay_cycles(10);
+	P1OUT |= BIT0;
+	__delay_cycles(10);
+	P1OUT &= ~BIT0;
+
+    __delay_cycles(100000);  // wait a long time, allow operation to complete
+//    P1OUT = 0; // clear P1OUT,just keeping don't care lines low
+}
+
+void write_data(char data) {
+	//	P2OUT = 0;
+	P1OUT &= ~BIT0;
+
+		// upper nibble
+		P2OUT = (P2OUT & 0xF0) | (data >> 4);
+		__delay_cycles(10);
+		P1OUT |= BIT0;      // raise enable
+		__delay_cycles(10);
+		P1OUT &= ~BIT0;   // lower enable
+
+		// lower nibble
+		__delay_cycles(10);
+		P2OUT = (P2OUT & 0xF0) | (0x0F & data);
+		__delay_cycles(10);
+		P1OUT |= BIT0;
+		__delay_cycles(10);
+		P1OUT &= ~BIT0;
+
+	    __delay_cycles(100000);  // wait a long time, allow operation to complete
+//	    P1OUT = 0; // clear P1OUT,just keeping don't care lines low
+}
+
+/* Writes a string of characters to DDRAM */
+write_msg(char* arr) {
+	while(*arr) {
+		write_data(*arr++);
+	}
+}
+
+
+void lcd_setup() {
+	/* LCD setup */
+	  /* initialize */
+	       __delay_cycles(1000000); // delay 1 second after power up
+
+	      /* Write the first command to put it in nibble mode */
+	          P2OUT = 0;
+	          P1OUT = BIT5;
+	          __delay_cycles(10);
+	          P2OUT = BIT0;
+	          __delay_cycles(10);
+	          P2OUT = 0;
+
+	          write_cmd(BIT2 | BIT3 | BIT5); // 2 line mode, display on
+
+	          __delay_cycles(2000000);
+
+	          write_cmd(BIT0 | BIT1 | BIT2| BIT3); // display on, cursor on, blink on
+	          __delay_cycles(2000000);
+
+	          write_cmd(BIT0); // display clear
+	          __delay_cycles(2000000);
+
+	          write_cmd(BIT1 | BIT2); // increment mode, shift off
+
+	          write_cmd(BIT1); // return home, set DDRAM address to 0x00
+
+	          write_cmd(BIT2 | BIT3 | BIT5);  // function set, put in two line mode, nibble mode
+}
 
 int main(void)
 {
@@ -284,7 +369,6 @@ __interrupt void Port_1(void)
 	      			break;
 	   }
 
-	   P1OUT ^= BIT0 + BIT6;
 	   P1IFG &= ~BIT3;
    }
 }
@@ -316,7 +400,6 @@ __interrupt void Port_2(void)
 
 	   TACCR0 = ccr0_state;
 
-	   P1OUT ^= BIT6;                      // Toggle P1.6
    	   P2IFG &= 0;
    }
    else if (P2IFG & BIT5) {
@@ -324,9 +407,10 @@ __interrupt void Port_2(void)
 	   duty_10_counts = (duty_10_counts + 1) % 11;
 	   square_clock_counts = duty_10_counts * DUTY_10;
 	   square_counter = 0;
+	   write_cmd(BIT1);
+	   write_msg("asdvasdv");
 	   TempDAC_Value = HIGH_SQUARE;
 	   Drive_DAC(HIGH_SQUARE);
-	   P1OUT ^= BIT0;
 	   P2IFG &=  0;                     // P1.3 IFG cleared
    }
 }

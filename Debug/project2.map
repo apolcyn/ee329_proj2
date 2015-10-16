@@ -1,10 +1,10 @@
 ******************************************************************************
                   MSP430 Linker PC v4.4.5                      
 ******************************************************************************
->> Linked Thu Oct 15 22:26:58 2015
+>> Linked Thu Oct 15 23:04:12 2015
 
 OUTPUT FILE NAME:   <project2.out>
-ENTRY POINT SYMBOL: "_c_int00_noargs_noexit"  address: 0000c3ca
+ENTRY POINT SYMBOL: "_c_int00_noargs_noexit"  address: 0000c4ec
 
 
 MEMORY CONFIGURATION
@@ -19,7 +19,7 @@ MEMORY CONFIGURATION
   INFOC                 00001040   00000040  00000000  00000040  RWIX
   INFOB                 00001080   00000040  00000000  00000040  RWIX
   INFOA                 000010c0   00000040  00000000  00000040  RWIX
-  FLASH                 0000c000   00003fde  000004e2  00003afc  RWIX
+  FLASH                 0000c000   00003fde  00000620  000039be  RWIX
   BSLSIGNATURE          0000ffde   00000002  00000002  00000000  RWIX  ffff 
   INT00                 0000ffe0   00000002  00000002  00000000  RWIX
   INT01                 0000ffe2   00000002  00000000  00000002  RWIX
@@ -54,37 +54,42 @@ section   page    origin      length       input sections
                   000003b0    00000002     rts430_eabi.lib : boot.obj (.stack)
                   000003b2    0000004e     --HOLE--
 
-.text      0    0000c000    0000045c     
-                  0000c000    000000f8     main.obj (.text:Port_2)
-                  0000c0f8    00000086     main.obj (.text:main)
-                  0000c17e    00000064     main.obj (.text:Port_1)
-                  0000c1e2    00000064     rts430_eabi.lib : copy_decompress_rle.obj (.text:__TI_decompress_rle_core)
-                  0000c246    00000058                     : autoinit.obj (.text:_auto_init)
-                  0000c29e    0000003c     main.obj (.text:draw_square_wave)
-                  0000c2da    0000003a     main.obj (.text:Drive_DAC)
-                  0000c314    0000002c     rts430_eabi.lib : div16s.obj (.text)
-                  0000c340    00000028     main.obj (.text:draw_sine_wave)
-                  0000c368    00000026     main.obj (.text:draw_sawtooth_wave)
-                  0000c38e    00000020     main.obj (.text:initBtn23)
-                  0000c3ae    0000001c     main.obj (.text:initBtn1)
-                  0000c3ca    0000001a     rts430_eabi.lib : boot_special.obj (.text:_c_int00_noargs_noexit)
-                  0000c3e4    0000001a     main.obj (.text:something)
-                  0000c3fe    00000016     rts430_eabi.lib : div16u.obj (.text)
-                  0000c414    00000012                     : copy_decompress_none.obj (.text:decompress:none:__TI_decompress_none)
-                  0000c426    00000012                     : memcpy.obj (.text:memcpy)
-                  0000c438    00000010                     : epilog.obj (.text)
-                  0000c448    00000006                     : isr_trap.obj (.text:_isr:__TI_ISR_TRAP)
-                  0000c44e    00000006                     : copy_decompress_rle.obj (.text:decompress:rle24:__TI_decompress_rle24)
-                  0000c454    00000004                     : pre_init.obj (.text:_system_pre_init)
-                  0000c458    00000004                     : exit.obj (.text:abort)
+.text      0    0000c000    00000590     
+                  0000c000    000000fc     main.obj (.text:Port_2)
+                  0000c0fc    00000086     main.obj (.text:main)
+                  0000c182    0000007c     main.obj (.text:write_cmd)
+                  0000c1fe    0000007c     main.obj (.text:write_data)
+                  0000c27a    00000064     rts430_eabi.lib : copy_decompress_rle.obj (.text:__TI_decompress_rle_core)
+                  0000c2de    0000005e     main.obj (.text:Port_1)
+                  0000c33c    00000058     rts430_eabi.lib : autoinit.obj (.text:_auto_init)
+                  0000c394    0000003c     main.obj (.text:draw_square_wave)
+                  0000c3d0    0000003a     main.obj (.text:Drive_DAC)
+                  0000c40a    0000002c     rts430_eabi.lib : asr16.obj (.text)
+                  0000c436    0000002c                     : div16s.obj (.text)
+                  0000c462    00000028     main.obj (.text:draw_sine_wave)
+                  0000c48a    00000026     main.obj (.text:draw_sawtooth_wave)
+                  0000c4b0    00000020     main.obj (.text:initBtn23)
+                  0000c4d0    0000001c     main.obj (.text:initBtn1)
+                  0000c4ec    0000001a     rts430_eabi.lib : boot_special.obj (.text:_c_int00_noargs_noexit)
+                  0000c506    0000001a     main.obj (.text:something)
+                  0000c520    00000016     rts430_eabi.lib : div16u.obj (.text)
+                  0000c536    00000012                     : copy_decompress_none.obj (.text:decompress:none:__TI_decompress_none)
+                  0000c548    00000012                     : memcpy.obj (.text:memcpy)
+                  0000c55a    00000012     main.obj (.text:write_msg)
+                  0000c56c    00000010     rts430_eabi.lib : epilog.obj (.text)
+                  0000c57c    00000006                     : isr_trap.obj (.text:_isr:__TI_ISR_TRAP)
+                  0000c582    00000006                     : copy_decompress_rle.obj (.text:decompress:rle24:__TI_decompress_rle24)
+                  0000c588    00000004                     : pre_init.obj (.text:_system_pre_init)
+                  0000c58c    00000004                     : exit.obj (.text:abort)
 
-.const     0    0000c45c    00000064     
-                  0000c45c    00000064     main.obj (.const:sine_map)
+.const     0    0000c590    0000006e     
+                  0000c590    00000064     main.obj (.const:sine_map)
+                  0000c5f4    0000000a     main.obj (.const:.string)
 
-.cinit     0    0000c4c0    00000022     
-                  0000c4c0    0000001a     (.cinit..data.load) [load image, compression = rle]
-                  0000c4da    00000004     (__TI_handler_table)
-                  0000c4de    00000004     (__TI_cinit_table)
+.cinit     0    0000c5fe    00000022     
+                  0000c5fe    0000001a     (.cinit..data.load) [load image, compression = rle]
+                  0000c618    00000004     (__TI_handler_table)
+                  0000c61c    00000004     (__TI_cinit_table)
 
 .init_array 
 *          0    0000c000    00000000     UNINITIALIZED
@@ -144,13 +149,13 @@ NMI        0    0000fffc    00000002
 
 LINKER GENERATED COPY TABLES
 
-__TI_cinit_table @ 0000c4de records: 1, size/record: 4, table size: 4
-	.data: load addr=0000c4c0, load size=0000001a bytes, run addr=00000200, run size=0000001a bytes, compression=rle
+__TI_cinit_table @ 0000c61c records: 1, size/record: 4, table size: 4
+	.data: load addr=0000c5fe, load size=0000001a bytes, run addr=00000200, run size=0000001a bytes, compression=rle
 
 
 LINKER GENERATED HANDLER TABLE
 
-__TI_handler_table @ 0000c4da records: 2, size/record: 2, table size: 4
+__TI_handler_table @ 0000c618 records: 2, size/record: 2, table size: 4
 	index: 0, handler: __TI_decompress_rle24
 	index: 1, handler: __TI_decompress_none
 
@@ -169,7 +174,7 @@ address   name
 00000057  BCSCTL1                 
 00000058  BCSCTL2                 
 00000053  BCSCTL3                 
-0000c458  C$$EXIT                 
+0000c58c  C$$EXIT                 
 00000059  CACTL1                  
 0000005a  CACTL2                  
 000010fb  CALBC1_12MHZ            
@@ -182,7 +187,7 @@ address   name
 000010fc  CALDCO_8MHZ             
 0000005b  CAPD                    
 00000056  DCOCTL                  
-0000c2da  Drive_DAC               
+0000c3d0  Drive_DAC               
 00000128  FCTL1                   
 0000012a  FCTL2                   
 0000012c  FCTL3                   
@@ -214,7 +219,7 @@ address   name
 00000010  P3REN                   
 0000001b  P3SEL                   
 00000043  P3SEL2                  
-0000c17e  Port_1                  
+0000c2de  Port_1                  
 0000c000  Port_2                  
 00000172  TA0CCR0                 
 00000174  TA0CCR1                 
@@ -264,15 +269,15 @@ address   name
 00000120  WDTCTL                  
 00000400  __STACK_END             
 00000050  __STACK_SIZE            
-0000c4de  __TI_CINIT_Base         
-0000c4e2  __TI_CINIT_Limit        
-0000c4da  __TI_Handler_Table_Base 
-0000c4de  __TI_Handler_Table_Limit
+0000c61c  __TI_CINIT_Base         
+0000c620  __TI_CINIT_Limit        
+0000c618  __TI_Handler_Table_Base 
+0000c61c  __TI_Handler_Table_Limit
 UNDEFED   __TI_INITARRAY_Base     
 UNDEFED   __TI_INITARRAY_Limit    
-0000c448  __TI_ISR_TRAP           
-0000c414  __TI_decompress_none    
-0000c44e  __TI_decompress_rle24   
+0000c57c  __TI_ISR_TRAP           
+0000c536  __TI_decompress_none    
+0000c582  __TI_decompress_rle24   
 0000ffe0  __TI_int00              
 0000ffe4  __TI_int02              
 0000ffe6  __TI_int03              
@@ -288,44 +293,63 @@ UNDEFED   __TI_INITARRAY_Limit
 0000fffc  __TI_int14              
 ffffffff  __binit__               
 ffffffff  __c_args__              
-0000c314  __mspabi_divi           
-0000c3fe  __mspabi_divu           
-0000c444  __mspabi_func_epilog_1  
-0000c442  __mspabi_func_epilog_2  
-0000c440  __mspabi_func_epilog_3  
-0000c43e  __mspabi_func_epilog_4  
-0000c43c  __mspabi_func_epilog_5  
-0000c43a  __mspabi_func_epilog_6  
-0000c438  __mspabi_func_epilog_7  
-0000c314  __mspabi_remi           
-0000c3fe  __mspabi_remu           
-0000c246  _auto_init              
-0000c3ca  _c_int00_noargs_noexit  
+0000c436  __mspabi_divi           
+0000c520  __mspabi_divu           
+0000c578  __mspabi_func_epilog_1  
+0000c576  __mspabi_func_epilog_2  
+0000c574  __mspabi_func_epilog_3  
+0000c572  __mspabi_func_epilog_4  
+0000c570  __mspabi_func_epilog_5  
+0000c56e  __mspabi_func_epilog_6  
+0000c56c  __mspabi_func_epilog_7  
+0000c436  __mspabi_remi           
+0000c520  __mspabi_remu           
+0000c40a  __mspabi_srai           
+0000c432  __mspabi_srai_1         
+0000c420  __mspabi_srai_10        
+0000c41e  __mspabi_srai_11        
+0000c41c  __mspabi_srai_12        
+0000c41a  __mspabi_srai_13        
+0000c418  __mspabi_srai_14        
+0000c416  __mspabi_srai_15        
+0000c430  __mspabi_srai_2         
+0000c42e  __mspabi_srai_3         
+0000c42c  __mspabi_srai_4         
+0000c42a  __mspabi_srai_5         
+0000c428  __mspabi_srai_6         
+0000c426  __mspabi_srai_7         
+0000c424  __mspabi_srai_8         
+0000c422  __mspabi_srai_9         
+0000c33c  _auto_init              
+0000c4ec  _c_int00_noargs_noexit  
 0000fffe  _reset_vector           
 000003b0  _stack                  
-0000c454  _system_pre_init        
-0000c458  abort                   
+0000c588  _system_pre_init        
+0000c58c  abort                   
 ffffffff  binit                   
 00000208  ccr0_state              
-0000c368  draw_sawtooth_wave      
-0000c340  draw_sine_wave          
-0000c29e  draw_square_wave        
+0000c48a  draw_sawtooth_wave      
+0000c462  draw_sine_wave          
+0000c394  draw_square_wave        
 00000218  draw_wave               
 00000216  duty_10_counts          
 00000212  freq_dividor            
 00000204  glob_counter            
-0000c3ae  initBtn1                
-0000c38e  initBtn23               
-0000c0f8  main                    
-0000c426  memcpy                  
+0000c4d0  initBtn1                
+0000c4b0  initBtn23               
+0000c0fc  main                    
+0000c548  memcpy                  
 00000210  sawtooth_clock_counts   
 0000020a  sawtooth_counter        
 00000202  sine_index              
-0000c45c  sine_map                
-0000c3e4  something               
+0000c590  sine_map                
+0000c506  something               
 0000020e  square_clock_counts     
 0000020c  square_counter          
 00000214  wave_state              
+0000c182  write_cmd               
+0000c1fe  write_data              
+0000c55a  write_msg               
 
 
 GLOBAL SYMBOLS: SORTED BY Symbol Address 
@@ -446,40 +470,59 @@ address   name
 000010fe  CALDCO_1MHZ             
 000010ff  CALBC1_1MHZ             
 0000c000  Port_2                  
-0000c0f8  main                    
-0000c17e  Port_1                  
-0000c246  _auto_init              
-0000c29e  draw_square_wave        
-0000c2da  Drive_DAC               
-0000c314  __mspabi_divi           
-0000c314  __mspabi_remi           
-0000c340  draw_sine_wave          
-0000c368  draw_sawtooth_wave      
-0000c38e  initBtn23               
-0000c3ae  initBtn1                
-0000c3ca  _c_int00_noargs_noexit  
-0000c3e4  something               
-0000c3fe  __mspabi_divu           
-0000c3fe  __mspabi_remu           
-0000c414  __TI_decompress_none    
-0000c426  memcpy                  
-0000c438  __mspabi_func_epilog_7  
-0000c43a  __mspabi_func_epilog_6  
-0000c43c  __mspabi_func_epilog_5  
-0000c43e  __mspabi_func_epilog_4  
-0000c440  __mspabi_func_epilog_3  
-0000c442  __mspabi_func_epilog_2  
-0000c444  __mspabi_func_epilog_1  
-0000c448  __TI_ISR_TRAP           
-0000c44e  __TI_decompress_rle24   
-0000c454  _system_pre_init        
-0000c458  C$$EXIT                 
-0000c458  abort                   
-0000c45c  sine_map                
-0000c4da  __TI_Handler_Table_Base 
-0000c4de  __TI_CINIT_Base         
-0000c4de  __TI_Handler_Table_Limit
-0000c4e2  __TI_CINIT_Limit        
+0000c0fc  main                    
+0000c182  write_cmd               
+0000c1fe  write_data              
+0000c2de  Port_1                  
+0000c33c  _auto_init              
+0000c394  draw_square_wave        
+0000c3d0  Drive_DAC               
+0000c40a  __mspabi_srai           
+0000c416  __mspabi_srai_15        
+0000c418  __mspabi_srai_14        
+0000c41a  __mspabi_srai_13        
+0000c41c  __mspabi_srai_12        
+0000c41e  __mspabi_srai_11        
+0000c420  __mspabi_srai_10        
+0000c422  __mspabi_srai_9         
+0000c424  __mspabi_srai_8         
+0000c426  __mspabi_srai_7         
+0000c428  __mspabi_srai_6         
+0000c42a  __mspabi_srai_5         
+0000c42c  __mspabi_srai_4         
+0000c42e  __mspabi_srai_3         
+0000c430  __mspabi_srai_2         
+0000c432  __mspabi_srai_1         
+0000c436  __mspabi_divi           
+0000c436  __mspabi_remi           
+0000c462  draw_sine_wave          
+0000c48a  draw_sawtooth_wave      
+0000c4b0  initBtn23               
+0000c4d0  initBtn1                
+0000c4ec  _c_int00_noargs_noexit  
+0000c506  something               
+0000c520  __mspabi_divu           
+0000c520  __mspabi_remu           
+0000c536  __TI_decompress_none    
+0000c548  memcpy                  
+0000c55a  write_msg               
+0000c56c  __mspabi_func_epilog_7  
+0000c56e  __mspabi_func_epilog_6  
+0000c570  __mspabi_func_epilog_5  
+0000c572  __mspabi_func_epilog_4  
+0000c574  __mspabi_func_epilog_3  
+0000c576  __mspabi_func_epilog_2  
+0000c578  __mspabi_func_epilog_1  
+0000c57c  __TI_ISR_TRAP           
+0000c582  __TI_decompress_rle24   
+0000c588  _system_pre_init        
+0000c58c  C$$EXIT                 
+0000c58c  abort                   
+0000c590  sine_map                
+0000c618  __TI_Handler_Table_Base 
+0000c61c  __TI_CINIT_Base         
+0000c61c  __TI_Handler_Table_Limit
+0000c620  __TI_CINIT_Limit        
 0000ffe0  __TI_int00              
 0000ffe4  __TI_int02              
 0000ffe6  __TI_int03              
@@ -500,4 +543,4 @@ ffffffff  binit
 UNDEFED   __TI_INITARRAY_Base     
 UNDEFED   __TI_INITARRAY_Limit    
 
-[167 symbols]
+[186 symbols]
