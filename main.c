@@ -352,7 +352,7 @@ void draw_sawtooth_wave() {
 }
 
 void draw_square_wave() {
-    if(++square_counter >= square_clock_counts) {
+    if(duty_10_counts != 0 && duty_10_counts != 10 && ++square_counter >= square_clock_counts) {
     	if(TempDAC_Value == LOW_SQUARE)
     	   TempDAC_Value = HIGH_SQUARE;
     	else
@@ -449,8 +449,12 @@ __interrupt void Port_2(void)
 	   square_counter = 0;
 	   write_cmd(BIT1);
 	   write_msg("asdvasdv");
-	   TempDAC_Value = HIGH_SQUARE;
-	   Drive_DAC(HIGH_SQUARE);
+	   if(duty_10_counts == 0)
+		   TempDAC_Value = LOW_SQUARE;
+	   else
+	      TempDAC_Value = HIGH_SQUARE;
+
+	   Drive_DAC(TempDAC_Value);
 	   P2IFG &=  0;                     // P1.3 IFG cleared
    }
    display_status(wave_type_str, freq_str, duty_cycle_str);
