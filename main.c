@@ -385,13 +385,13 @@ __interrupt void Port_1(void)
 	      		case SQUARE:
 	      			draw_wave = draw_sine_wave;
 	      			wave_state = SINE;
-	      			wave_type_str = "Sine";
+	      			wave_type_str = "Sine    ";
 	      			duty_cycle_str = NULL;
 	      			break;
 	      		case SAWTOOTH:
 	      			draw_wave = draw_square_wave;
 	      			wave_state = SQUARE;
-	      			wave_type_str = "Square";
+	      			wave_type_str = "Square  ";
 	      			duty_cycle_str = duty_cycle_map[duty_10_counts];
 	      			break;
 	      		case SINE:
@@ -466,5 +466,7 @@ void display_status(char *wave_type, char *freq, char *duty_cycle) {
 	   write_msg(" Duty: ");
 	   write_msg(duty_cycle);
    }
+   else
+	   write_msg("          ");
 }
 
