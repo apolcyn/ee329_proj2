@@ -56,17 +56,17 @@ char *freq_str = "100 Hz";
 char *duty_cycle_str = NULL;
 
 char *duty_cycle_map[] = {
-		"0%",
-		"10%",
-		"20%",
-		"30%",
-		"40%",
-		"50%",
-		"60%",
-		"70%",
-		"80%",
-		"90%",
-		"100",
+		"0%  ",
+		"10% ",
+		"20% ",
+		"30% ",
+		"40% ",
+		"50% ",
+		"60% ",
+		"70% ",
+		"80% ",
+		"90% ",
+		"100%",
 };
 
 const int sine_map[] = {
@@ -463,7 +463,7 @@ void display_status(char *wave_type, char *freq, char *duty_cycle) {
    write_cmd(BIT7 | 0x40);
    write_msg(freq);
    if(duty_cycle) {
-	   write_msg(" Duty: ");
+	   write_msg(" Duty:");
 	   write_msg(duty_cycle);
    }
    else
