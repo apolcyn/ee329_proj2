@@ -214,14 +214,14 @@ int main(void)
   write_cmd(BIT1);
   write_msg("hello");
 
-//  initBtn1();
-//  initBtn23();
+  initBtn1();
+  initBtn23();
 
   // Init Ports
-//  P1DIR |= BIT4;                     // Will use BIT4 to activate /CE on the DAC
+    P1DIR |= BIT4;                     // Will use BIT4 to activate /CE on the DAC
 
- // P1SEL  = BIT7 + BIT5;  // + BIT4;  // These two lines dedicate P1.7 and P1.5
- // P1SEL2 = BIT7 + BIT5; // + BIT4;   // for UCB0SIMO and UCB0CLK respectively
+    P1SEL  = BIT7 + BIT5;  // + BIT4;  // These two lines dedicate P1.7 and P1.5
+    P1SEL2 = BIT7 + BIT5; // + BIT4;   // for UCB0SIMO and UCB0CLK respectively
 
   // SPI Setup
   // clock inactive state = low,
@@ -229,17 +229,17 @@ int main(void)
   // 4-pin active Low STE, synchronous
   //
   // 4-bit mode disabled for now
-//  UCB0CTL0 |= UCCKPL + UCMSB + UCMST + /* UCMODE_2 */ + UCSYNC;
+    UCB0CTL0 |= UCCKPL + UCMSB + UCMST + /* UCMODE_2 */ + UCSYNC;
 
 
-//  UCB0CTL1 |= UCSSEL_2;               // UCB0 will use SMCLK as the basis for
+    UCB0CTL1 |= UCSSEL_2;               // UCB0 will use SMCLK as the basis for
                                       // the SPI bit clock
 
   // Sets SMCLK divider to 16,
   // hence making SPI SCLK equal
   // to SMCLK/16 = 1MHz
-//  UCB0BR0 |= 0x10;             // (low divider byte)
-//  UCB0BR1 |= 0x00;             // (high divider byte)
+    UCB0BR0 |= 0x10;             // (low divider byte)
+    UCB0BR1 |= 0x00;             // (high divider byte)
 
   // An example of creating another lower frequency SPI SCLK
   //UCB0BR0 |= 0x00;           // (low byte)  This division caused divide by 256
@@ -248,7 +248,7 @@ int main(void)
   //UCB0MCTL = 0;              // No modulation => NOT REQUIRED ON B PORT,
                                // would be required if used UCA0
 
-//  UCB0CTL1 &= ~UCSWRST;        // **Initialize USCI state machine**
+    UCB0CTL1 &= ~UCSWRST;        // **Initialize USCI state machine**
                                // SPI now Waiting for something to
                                // be placed in TXBUF.
 
@@ -257,9 +257,9 @@ int main(void)
   //IE2 = UCB0RXIE;            // Enable USCI0 RX interrupt
   //_enable_interrupts();
 
-//  TACTL = TASSEL_2 + MC_1 + ID_3;
-//  TACCR0 = HZ_100;
-//  __enable_interrupt();
+    TACTL = TASSEL_2 + MC_1 + ID_3;
+    TACCR0 = HZ_100;
+    __enable_interrupt();
 
 } // end of main
 
