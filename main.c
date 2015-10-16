@@ -1,7 +1,7 @@
 #include <msp430g2553.h>
 
 #define SCALE 1
-#define NUM_SAMPLES 45
+#define NUM_SAMPLES 50
 #define HIGH_SQUARE 4095
 #define LOW_SQUARE 100
 #define VOLT_STEP ((HIGH_SQUARE - LOW_SQUARE) / NUM_SAMPLES)
@@ -11,11 +11,13 @@
 #define SINE 2
 
 #define LOW_CCRO_COUNT 444
-#define HZ_100 440
-#define HZ_200 218
-#define HZ_300 145
-#define HZ_400 109
-#define HZ_500 86
+#define HZ_100 395
+#define HZ_200 196
+#define HZ_300 130
+#define HZ_400 98
+#define HZ_500 78
+
+#define DUTY_10 (NUM_SAMPLES / 10)
 
 void Drive_DAC(unsigned int level);
 
@@ -37,61 +39,68 @@ int ccr0_state = HZ_100;
 int sawtooth_counter = 0;
 int square_counter = 0;
 
-int square_clock_counts = NUM_SAMPLES/2;
+int square_clock_counts = DUTY_10;
 int sawtooth_clock_counts = NUM_SAMPLES;
 
 int freq_dividor = 1;
 
 int wave_state = SAWTOOTH;
 
+int duty_10_counts = 1;
+
 void (*draw_wave)(void) = draw_sine_wave;
 
 const int sine_map[] = {
 		2000,
-		2278,
-		2551,
-		2813,
-		3059,
-		3285,
-		3486,
-		3658,
-		3797,
-		3902,
-		3969,
-		3998,
-		3989,
-		3940,
-		3854,
-		3732,
-		3576,
-		3389,
+		2250,
+		2497,
+		2736,
+		2963,
 		3175,
-		2938,
-		2684,
-		2415,
-		2139,
-		1860,
-		1584,
-		1315,
-		1061,
+		3369,
+		3541,
+		3688,
+		3809,
+		3902,
+		3964,
+		3996,
+		3996,
+		3964,
+		3902,
+		3809,
+		3688,
+		3541,
+		3369,
+		3175,
+		2963,
+		2736,
+		2497,
+		2250,
+		2000,
+		1749,
+		1502,
+		1263,
+		1036,
 		824,
-		610,
-		423,
-		267,
-		145,
-		59,
-		10,
-		1,
-		30,
+		630,
+		458,
+		311,
+		190,
 		97,
-		202,
-		341,
-		513,
-		714,
-		940,
-		1186,
-		1448,
-		1721,
+		35,
+		3,
+		3,
+		35,
+		97,
+		190,
+		311,
+		458,
+		630,
+		824,
+		1036,
+		1263,
+		1502,
+		1749,
 };
 
 int main(void)
@@ -231,15 +240,16 @@ void draw_sawtooth_wave() {
 }
 
 void draw_square_wave() {
-    if(++square_counter == square_clock_counts) {
-    	TempDAC_Value = LOW_SQUARE;
+    if(++square_counter >= square_clock_counts) {
+    	if(TempDAC_Value == LOW_SQUARE)
+    	   TempDAC_Value = HIGH_SQUARE;
+    	else
+    	   TempDAC_Value = LOW_SQUARE;
+
     	Drive_DAC(TempDAC_Value);
+    	square_clock_counts = NUM_SAMPLES - square_clock_counts;
+    	square_counter = 0;
     }
-    else if(square_counter >= NUM_SAMPLES) {
-		square_counter = 0;
-		TempDAC_Value == HIGH_SQUARE;
-		Drive_DAC(TempDAC_Value);
-	}
 }
 
 #pragma vector=TIMER0_A0_VECTOR
@@ -309,8 +319,13 @@ __interrupt void Port_2(void)
 	   P1OUT ^= BIT6;                      // Toggle P1.6
    	   P2IFG &= 0;
    }
-
    else if (P2IFG & BIT5) {
+	   __delay_cycles(4000000);
+	   duty_10_counts = (duty_10_counts + 1) % 11;
+	   square_clock_counts = duty_10_counts * DUTY_10;
+	   square_counter = 0;
+	   TempDAC_Value = HIGH_SQUARE;
+	   Drive_DAC(HIGH_SQUARE);
 	   P1OUT ^= BIT0;
 	   P2IFG &=  0;                     // P1.3 IFG cleared
    }
