@@ -105,8 +105,7 @@ const int sine_map[] = {
 };
 
 void write_cmd(char cmd) {
-//	P2OUT = 0;
-	P1OUT &= ~BIT0;
+	P1OUT &= 0xF8;
 
 	// upper nibble
 	P2OUT = (P2OUT & 0xF0) | (cmd >> 4);
@@ -124,12 +123,15 @@ void write_cmd(char cmd) {
 	P1OUT &= ~BIT0;
 
     __delay_cycles(100000);  // wait a long time, allow operation to complete
-//    P1OUT = 0; // clear P1OUT,just keeping don't care lines low
+    P1OUT &= 0xF8; // clear P1OUT,just keeping don't care lines low
 }
 
 void write_data(char data) {
 	//	P2OUT = 0;
-	P1OUT &= ~BIT0;
+	P1OUT &= 0xF8;
+
+	P1OUT |= BIT2;
+//	P1OUT &= ~BIT0;
 
 		// upper nibble
 		P2OUT = (P2OUT & 0xF0) | (data >> 4);
@@ -147,7 +149,7 @@ void write_data(char data) {
 		P1OUT &= ~BIT0;
 
 	    __delay_cycles(100000);  // wait a long time, allow operation to complete
-//	    P1OUT = 0; // clear P1OUT,just keeping don't care lines low
+	    P1OUT &= 0xF8; // clear P1OUT,just keeping don't care lines low
 }
 
 /* Writes a string of characters to DDRAM */
@@ -164,7 +166,9 @@ void lcd_setup() {
 	       __delay_cycles(1000000); // delay 1 second after power up
 
 	      /* Write the first command to put it in nibble mode */
-	          P1OUT &= ~BIT0;
+	          P1OUT &= 0xF8;
+	          P2OUT &= 0xF0;
+
 	          P2OUT |= BIT1;
 	          __delay_cycles(10);
 	          P1OUT |= BIT0;
@@ -203,17 +207,21 @@ int main(void)
   DCOCTL = CALDCO_16MHZ;             // Set DCO step + modulation
 
   P1OUT &= 0x00;               // Shut down everything
-  P1DIR &= 0x00;
-  P2DIR &= 0x00;		       // Clear P2DIR
+  P1DIR |= 0x07;
+  P2DIR |= 0x0f;		       // Clear P2DIR
 
-  initBtn1();
-  initBtn23();
+  lcd_setup();
+  write_cmd(BIT1);
+  write_msg("hello");
+
+//  initBtn1();
+//  initBtn23();
 
   // Init Ports
-  P1DIR |= BIT4;                     // Will use BIT4 to activate /CE on the DAC
+//  P1DIR |= BIT4;                     // Will use BIT4 to activate /CE on the DAC
 
-  P1SEL  = BIT7 + BIT5;  // + BIT4;  // These two lines dedicate P1.7 and P1.5
-  P1SEL2 = BIT7 + BIT5; // + BIT4;   // for UCB0SIMO and UCB0CLK respectively
+ // P1SEL  = BIT7 + BIT5;  // + BIT4;  // These two lines dedicate P1.7 and P1.5
+ // P1SEL2 = BIT7 + BIT5; // + BIT4;   // for UCB0SIMO and UCB0CLK respectively
 
   // SPI Setup
   // clock inactive state = low,
@@ -221,17 +229,17 @@ int main(void)
   // 4-pin active Low STE, synchronous
   //
   // 4-bit mode disabled for now
-  UCB0CTL0 |= UCCKPL + UCMSB + UCMST + /* UCMODE_2 */ + UCSYNC;
+//  UCB0CTL0 |= UCCKPL + UCMSB + UCMST + /* UCMODE_2 */ + UCSYNC;
 
 
-  UCB0CTL1 |= UCSSEL_2;               // UCB0 will use SMCLK as the basis for
+//  UCB0CTL1 |= UCSSEL_2;               // UCB0 will use SMCLK as the basis for
                                       // the SPI bit clock
 
   // Sets SMCLK divider to 16,
   // hence making SPI SCLK equal
   // to SMCLK/16 = 1MHz
-  UCB0BR0 |= 0x10;             // (low divider byte)
-  UCB0BR1 |= 0x00;             // (high divider byte)
+//  UCB0BR0 |= 0x10;             // (low divider byte)
+//  UCB0BR1 |= 0x00;             // (high divider byte)
 
   // An example of creating another lower frequency SPI SCLK
   //UCB0BR0 |= 0x00;           // (low byte)  This division caused divide by 256
@@ -240,7 +248,7 @@ int main(void)
   //UCB0MCTL = 0;              // No modulation => NOT REQUIRED ON B PORT,
                                // would be required if used UCA0
 
-  UCB0CTL1 &= ~UCSWRST;        // **Initialize USCI state machine**
+//  UCB0CTL1 &= ~UCSWRST;        // **Initialize USCI state machine**
                                // SPI now Waiting for something to
                                // be placed in TXBUF.
 
@@ -249,9 +257,9 @@ int main(void)
   //IE2 = UCB0RXIE;            // Enable USCI0 RX interrupt
   //_enable_interrupts();
 
-  TACTL = TASSEL_2 + MC_1 + ID_3;
-  TACCR0 = HZ_100;
-  __enable_interrupt();
+//  TACTL = TASSEL_2 + MC_1 + ID_3;
+//  TACCR0 = HZ_100;
+//  __enable_interrupt();
 
 } // end of main
 
