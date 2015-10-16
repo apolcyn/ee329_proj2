@@ -349,6 +349,19 @@ void draw_sawtooth_wave() {
    Drive_DAC(TempDAC_Value);
 }
 
+void draw_square_wave() {
+    if(duty_10_counts != 0 && duty_10_counts != 10 && ++square_counter >= square_clock_counts) {
+    	if(TempDAC_Value == LOW_SQUARE)
+    	   TempDAC_Value = HIGH_SQUARE;
+    	else
+    	   TempDAC_Value = LOW_SQUARE;
+
+    	Drive_DAC(TempDAC_Value);
+    	square_clock_counts = NUM_SAMPLES - square_clock_counts;
+    	square_counter = 0;
+    }
+}
+
 /* Draws the selected wave by writing the necessary data to the DAC.
  * This goes off NUM_SAMPLES times per period.
  */
@@ -379,6 +392,14 @@ __interrupt void Port_1(void)
 	      			wave_state = SQUARE;
 	      			wave_type_str = "Square  ";
 	      			duty_cycle_str = duty_cycle_map[duty_10_counts];
+	      			square_counter = 0;
+	      			square_clock_counts = duty_10_counts * DUTY_10;
+	      			if(duty_10_counts == 0)
+	      				TempDAC_Value = LOW_SQUARE;
+	      			else
+	      				TempDAC_Value = HIGH_SQUARE;
+
+	      			Drive_DAC(TempDAC_Value);
 	      			break;
 	      		case SINE:
 	      			draw_wave = draw_sawtooth_wave;
