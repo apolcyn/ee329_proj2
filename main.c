@@ -164,12 +164,12 @@ void lcd_setup() {
 	       __delay_cycles(1000000); // delay 1 second after power up
 
 	      /* Write the first command to put it in nibble mode */
-	          P2OUT = 0;
-	          P1OUT = BIT5;
+	          P1OUT &= ~BIT0;
+	          P2OUT |= BIT1;
 	          __delay_cycles(10);
-	          P2OUT = BIT0;
+	          P1OUT |= BIT0;
 	          __delay_cycles(10);
-	          P2OUT = 0;
+	          P1OUT &= ~BIT0;
 
 	          write_cmd(BIT2 | BIT3 | BIT5); // 2 line mode, display on
 
